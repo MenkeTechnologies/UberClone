@@ -44,10 +44,13 @@ class DriverViewController: UITableViewController, CLLocationManagerDelegate{
     
     
     func locationManager(manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        
         let driverLocation : CLLocationCoordinate2D = manager.location!.coordinate
+        
+        self.latitude = driverLocation.latitude
+        self.longitude = driverLocation.longitude
+        
         print("locations = \(driverLocation.latitude) \(driverLocation.longitude)")
-        
-        
         
         
         var query = PFQuery(className:"driverLocation")
@@ -57,29 +60,35 @@ class DriverViewController: UITableViewController, CLLocationManagerDelegate{
             if error == nil {
                 
                 
+                
+                
                 if let objects = objects! as? [PFObject] {
                     
-                    for object in objects {
-                        
-                        var query = PFQuery(className: "driverLocation")
-                        query.getObjectInBackgroundWithId(object.objectId!, block: { (object, error) in
-                            
-                            if error != nil{
-                                print(error)
-                            } else if let object = object{
-                                
-                                object["driverLocation"] = PFGeoPoint(latitude: driverLocation.latitude, longitude: driverLocation.longitude)
-                                
-                                object.saveInBackground()
-                            }
-                            
-                        })
-                     
-                        
-                        
-                    }
                     
-                } else {
+                    if objects.count > 0 {
+                       
+
+                        for object in objects {
+                            
+                            var query = PFQuery(className: "driverLocation")
+                            query.getObjectInBackgroundWithId(object.objectId!, block: { (object, error) in
+                                
+                                if error != nil{
+                                    print(error)
+                                } else if let object = object{
+                                    
+                                    object["driverLocation"] = PFGeoPoint(latitude: driverLocation.latitude, longitude: driverLocation.longitude)
+                                    
+                                    object.saveInBackground()
+                                }
+                                
+                            })
+                            
+                            
+                            
+                        }
+                        
+                    } else {
                     
                     var driverLocationField = PFObject(className:"driverLocation")
                     driverLocationField["username"] = PFUser.currentUser()?.username
@@ -87,10 +96,11 @@ class DriverViewController: UITableViewController, CLLocationManagerDelegate{
                     
                     driverLocationField.saveInBackground()
                     
+                    }
                     
                     
                 }
-
+                
             } else {
                 
                 print(error)
@@ -100,7 +110,7 @@ class DriverViewController: UITableViewController, CLLocationManagerDelegate{
         
         
         
-    
+        
         
         
         
@@ -120,6 +130,7 @@ class DriverViewController: UITableViewController, CLLocationManagerDelegate{
                     self.locations.removeAll()
                     
                     for object in objects {
+                        
                         
                         if let username = object["username"] as? String {
                             self.usernames.append(username)
@@ -198,8 +209,10 @@ class DriverViewController: UITableViewController, CLLocationManagerDelegate{
         return cell
     }
     
+    
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
         if segue.identifier == "logoutDriver" {
+            
             PFUser.logOut()
             
             navigationController?.setNavigationBarHidden(navigationController?.navigationBarHidden == false, animated: false)
