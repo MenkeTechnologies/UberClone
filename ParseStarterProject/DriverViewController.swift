@@ -55,6 +55,9 @@ class DriverViewController: UITableViewController, CLLocationManagerDelegate{
         
         var query = PFQuery(className:"driverLocation")
         
+        if PFUser.currentUser()?.username != nil{
+            
+        
         query.whereKey("username", equalTo:(PFUser.currentUser()?.username)!)
         query.findObjectsInBackgroundWithBlock({ (objects, error) in
             if error == nil {
@@ -109,7 +112,7 @@ class DriverViewController: UITableViewController, CLLocationManagerDelegate{
         
         
         
-        
+        }
         
         
         
